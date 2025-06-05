@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Hotel Reviews</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" 
+          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-color: #f5f5f5;
+            --card-background: white;
+            --text-color: #333;
+            --positive-color: #27ae60;
+            --negative-color: #e74c3c;
+            --border-radius: 8px;
+            --spacing: 20px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: var(--spacing);
+            padding: var(--spacing);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background: var(--card-background);
+            padding: var(--spacing);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hotel-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .hotel-list li {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .hotel-list li:hover {
+            background-color: #f0f0f0;
+        }
+
+        .hotel-list li.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing);
+        }
+
+        .reviews-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing);
+        }
+
+        .review-card {
+            background: var(--card-background);
+            padding: var(--spacing);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .review-section {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            position: relative;
+        }
+
+        .review-section.positive {
+            background-color: rgba(39, 174, 96, 0.1);
+            border-left: 4px solid var(--positive-color);
+        }
+
+        .review-section.negative {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--negative-color);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .section-header i {
+            margin-right: 8px;
+            font-size: 1.2em;
+        }
+
+        .positive .section-header i {
+            color: var(--positive-color);
+        }
+
+        .negative .section-header i {
+            color: var(--negative-color);
+        }
+
+        .original-text {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-style: italic;
+            color: #666;
+        }
+
+        .score {
+            font-size: 1.2em;
+            color: var(--secondary-color);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .review-form {
+            background: var(--card-background);
+            padding: var(--spacing);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        input, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .message {
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .message.success {
+            background-color: var(--positive-color);
+            color: white;
+            display: block;
+        }
+
+        .message.error {
+            background-color: var(--negative-color);
+            color: white;
+            display: block;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Hotels</h2>
+            <div class="search-box">
+                <input type="text" id="hotelSearch" placeholder="Search hotels...">
+            </div>
+            <ul class="hotel-list" id="hotelList">
+                <li class="loading">Loading hotels...</li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div id="selectedHotel">
+                <h2>Select a hotel to view reviews</h2>
+            </div>
+
+            <div class="review-form" id="reviewForm" style="display: none;">
+                <h3>Write a Review</h3>
+                <form class="form-grid">
+                    <div class="form-group">
+                        <label for="fullReviewText">Your Review</label>
+                        <textarea 
+                            id="fullReviewText" 
+                            required 
+                            placeholder="Share your complete hotel experience here..."
+                        ></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewerScore">Score (0-10)</label>
+                        <input 
+                            type="number" 
+                            id="reviewerScore" 
+                            min="0" 
+                            max="10" 
+                            step="0.1" 
+                            required
+                        >
+                    </div>
+                    <button type="submit">Submit Review</button>
+                </form>
+                <div id="message" class="message"></div>
+            </div>
+
+            <div class="reviews-container" id="reviewsList">
+                <!-- Reviews will be inserted here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Debug logging
+        console.log('Script loaded and running');
+        
+        let selectedHotel = null;
+        const hotelList = document.getElementById('hotelList');
+        const reviewsList = document.getElementById('reviewsList');
+        const reviewForm = document.getElementById('reviewForm');
+        const messageDiv = document.getElementById('message');
+        const selectedHotelDiv = document.getElementById('selectedHotel');
+        const hotelSearch = document.getElementById('hotelSearch');
+
+        function showMessage(text, isSuccess) {
+            console.log('Showing message:', text, isSuccess);
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${isSuccess ? 'success' : 'error'}`;
+            setTimeout(() => {
+                messageDiv.className = 'message';
+            }, 5000);
+        }
+
+        function renderReviewCard(review) {
+            console.log('Rendering review:', review);
+            
+            // Ensure we have valid strings for reviews
+            const positiveText = review.Positive_Review || 'No positive review available';
+            const negativeText = review.Negative_Review || 'No negative review available';
+            
+            return `
+                <div class="review-card">
+                    <div class="score">
+                        <i class="fas fa-star"></i> Score: ${review.Reviewer_Score}
+                    </div>
+                    
+                    <div class="review-section positive">
+                        <div class="section-header">
+                            <i class="fas fa-thumbs-up"></i>
+                            Positive Aspects
+                        </div>
+                        ${positiveText}
+                    </div>
+
+                    <div class="review-section negative">
+                        <div class="section-header">
+                            <i class="fas fa-thumbs-down"></i>
+                            Negative Aspects
+                        </div>
+                        ${negativeText}
+                    </div>
+
+                    ${review.original_text ? `
+                        <div class="original-text">
+                            <strong>Original Review:</strong><br>
+                            ${review.original_text}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        async function fetchHotels() {
+            try {
+                console.log('Fetching hotels...');
+                const response = await fetch('/api/hotels');
+                const hotels = await response.json();
+                renderHotelList(hotels);
+            } catch (error) {
+                console.error('Error fetching hotels:', error);
+                hotelList.innerHTML = '<li class="error">Error loading hotels</li>';
+            }
+        }
+
+        async function fetchReviews(hotelName) {
+            try {
+                console.log('Fetching reviews for:', hotelName);
+                const response = await fetch(`/api/reviews?hotel=${encodeURIComponent(hotelName)}`);
+                const reviews = await response.json();
+                console.log('Fetched reviews:', reviews);
+                return reviews;
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+                throw error;
+            }
+        }
+
+        function renderHotelList(hotels) {
+            const searchTerm = hotelSearch.value.toLowerCase();
+            const filteredHotels = hotels.filter(hotel => 
+                hotel.toLowerCase().includes(searchTerm)
+            );
+
+            hotelList.innerHTML = filteredHotels
+                .map(hotel => `
+                    <li data-hotel="${hotel}" 
+                        class="${hotel === selectedHotel ? 'active' : ''}">
+                        ${hotel}
+                    </li>
+                `)
+                .join('');
+        }
+
+        async function renderReviews(reviews) {
+            console.log('Rendering reviews:', reviews);
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = '<div class="review-card">No reviews yet for this hotel.</div>';
+                return;
+            }
+
+            reviewsList.innerHTML = reviews.map(renderReviewCard).join('');
+        }
+
+        // Event Listeners
+        hotelList.addEventListener('click', async (e) => {
+            const li = e.target.closest('li');
+            if (!li) return;
+
+            selectedHotel = li.dataset.hotel;
+            document.querySelectorAll('.hotel-list li').forEach(item => 
+                item.classList.remove('active')
+            );
+            li.classList.add('active');
+            
+            selectedHotelDiv.innerHTML = `<h2>Reviews for ${selectedHotel}</h2>`;
+            reviewForm.style.display = 'block';
+            
+            try {
+                const reviews = await fetchReviews(selectedHotel);
+                await renderReviews(reviews);
+            } catch (error) {
+                showMessage('Error loading reviews', false);
+            }
+        });
+
+        hotelSearch.addEventListener('input', () => {
+            fetchHotels();
+        });
+
+        reviewForm.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullReviewText = document.getElementById('fullReviewText').value;
+            const reviewerScore = parseFloat(document.getElementById('reviewerScore').value);
+
+            if (!selectedHotel) {
+                showMessage('Please select a hotel first', false);
+                return;
+            }
+
+            try {
+                console.log('Submitting review text:', fullReviewText);
+                
+                // Step 1: Split the review using the model
+                const splitResponse = await fetch('/split-review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: fullReviewText })
+                });
+
+                if (!splitResponse.ok) {
+                    throw new Error('Failed to process review');
+                }
+
+                const splitResult = await splitResponse.json();
+                console.log('Split review result:', splitResult);
+
+                if (splitResult.error) {
+                    throw new Error(splitResult.error);
+                }
+
+                // Step 2: Submit the complete review with split parts
+                const reviewData = {
+                    hotel_name: selectedHotel,
+                    reviewer_score: reviewerScore,
+                    positive_review: splitResult.positive,
+                    negative_review: splitResult.negative
+                };
+
+                console.log('Submitting review data:', reviewData);
+
+                const submitResponse = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reviewData)
+                });
+
+                if (submitResponse.ok) {
+                    showMessage('Review submitted successfully!', true);
+                    e.target.reset();
+                    
+                    // Refresh the reviews list
+                    const reviews = await fetchReviews(selectedHotel);
+                    console.log('Fetched updated reviews:', reviews);
+                    
+                    if (reviews.length > 0) {
+                        reviews[0].original_text = fullReviewText;
+                    }
+                    await renderReviews(reviews);
+                } else {
+                    const error = await submitResponse.json();
+                    showMessage(error.detail || 'Error submitting review', false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Error submitting review', false);
+            }
+        });
+
+        // Initialize the page
+        console.log('Initializing page...');
+        fetchHotels();
+    </script>
+</body>
+</html> 
